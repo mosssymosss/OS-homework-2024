@@ -6,7 +6,40 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <pthread.h>
+#include <vector>
 
+
+void* handle_client(void* data)
+{
+	int client_socket = *(static_cast<int*>(data));
+	char buffer[3001];
+	// Receive message from client
+	while(true)
+	{
+		int rs = recv(client_socket, buffer, 3000, 0);
+	      	if (rs < 0)
+	        {
+	        	std::perror("client socket connection error");
+			close(client_socket);
+		       	exit(EXIT_FAILURE);
+		}
+		else if (rs > 0)
+		{
+			std::cout << "Got message:\n";
+			buffer[rs] = '\0';
+			std::cout << buffer << "\n";
+		}
+		else
+		{
+			std::cout<<"Disconnected client \n";
+			//close(client_socket);
+			break;
+		}
+	}
+	close(client_socket);
+	return nullptr;
+}
 
 int main()
 {
@@ -43,6 +76,8 @@ int main()
 		exit(errno);
        	}
 	std::cout << "Waiting for connection\n";
+	
+	std::vector<pthread_t> threads;
 
 	while(true)
        	{
@@ -57,25 +92,54 @@ int main()
 		}
 		std::cout << "Connected client with address: " << inet_ntoa(client_address.sin_addr) << "\n";
 		
-		char buffer[3001];
-		// Receive message from client
-		int rs = recv(client_socket, buffer, 3000, 0);
-		if (rs == -1) 
-		{
-			std::perror("client socket connection error");
-		        close(client_socket);
-			continue;
-		}
 		
-		if (rs > 0) 
+		
+		pthread_t thread;
+		if(pthread_create(&thread, nullptr, handle_client, &client_socket) != 0)
 		{
-			std::cout << "Got message:\n";
-		        buffer[rs] = '\0';
-		        std::cout << buffer << "\n";
+			std::perror("pthread");
+			exit(EXIT_FAILURE);
 		}
-		close(client_socket);
+		threads.push_back(thread);
+			
+		//	char buffer[3001];
+			// Receive message from client
+		//	while(true)
+	//		{
+	//			int rs = recv(client_socket, buffer, 3000, 0);
+	//			if (rs < 0) 
+	//			{
+	//				std::perror("client socket connection error");
+	//			        close(client_socket);
+	//			}
+	//			else if (rs > 0) 
+	//			{
+	//				std::cout << "Got message:\n";
+	//	        		buffer[rs] = '\0';
+	//	        		std::cout << buffer << "\n";
+	//			}
+	//			else
+	//			{
+	//				std::cout<<"Disconnected client with address: " << inet_ntoa(client_address.sin_addr) << "\n";
+	//				close(client_socket);
+	//				exit(EXIT_SUCCESS);
+	//			}
+	//		}
+	//	}
+	//	else
+	//	{
+	//		close(client_socket);
+	//	}
 	}
-	                                                                                                                                        
+	for(auto& x : threads)
+	{
+		if(pthread_join(x, nullptr) != 0)
+		{
+			std::perror("join");
+			exit(EXIT_FAILURE);
+		}
+	}
+
 	// close
 	close(server_socket);
 	return 0;

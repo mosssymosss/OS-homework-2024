@@ -36,11 +36,15 @@ int main()
 	  
 	  // send message to server
 	  std::string mess;
-	  std::cin >> mess;
-	  int sent = send(client_socket, mess.c_str(), mess.size(), 0);
-	  if(sent == -1)
+	  while(mess != "exit")
 	  {
-	  	exit(errno);
+	  	std::cin >> mess;
+	  	int sent = send(client_socket, mess.c_str(), mess.size(), 0);
+	  	if(sent == -1)
+	  	{
+			std::perror("send");
+	  		exit(errno);
+	  	}
 	  }
 	  close(client_socket);
 	  return 0;
