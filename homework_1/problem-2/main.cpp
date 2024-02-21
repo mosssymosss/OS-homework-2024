@@ -7,7 +7,7 @@
 #include <netdb.h>
 #include <unistd.h>
 
-const std::string SERVER_IP = "217.113.2.233"; // IP address of w
+const std::string SERVER_IP = "217.113.2.231"; // IP address of w
 const int SERVER_PORT = 80;
 const std::string FILENAME = "ysu.html";
 const std::string serverAddress = "www.ysu.am";
@@ -15,7 +15,7 @@ const std::string serverAddress = "www.ysu.am";
 
 int main()
 {
-	std::string request = "GET / HTTP/1.1\r\n";
+	std::string request = "GET /main/ HTTP/1.1\r\n";
 	request += "Host: www.ysu.am\r\n";
 	request += "Connection: close\r\n\r\n";
 
@@ -31,12 +31,12 @@ int main()
 	server_address.sin_family = AF_INET;
 	server_address.sin_port = htons(SERVER_PORT);
 	server_address.sin_addr.s_addr = inet_addr(SERVER_IP.c_str());
-	if (inet_pton(AF_INET, serverAddress.c_str(), &server_address.sin_addr) < 0) 
-	{
-		std::perror("inet_pton error");
-		close(client_socket);
-		exit(EXIT_FAILURE);
-	}
+	//if (inet_pton(AF_INET, serverAddress.c_str(), &server_address.sin_addr) < 0) 
+	//{
+	//	std::perror("inet_pton error");
+//		close(client_socket);
+//		exit(EXIT_FAILURE);
+//	}
 
 	if (connect(client_socket, (struct sockaddr*)&server_address, sizeof(server_address)) == -1) 
 	{
