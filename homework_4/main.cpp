@@ -4,6 +4,8 @@
 #include <sys/mman.h>
 #include <semaphore.h>
 #include <vector>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 const int SIZE = 5;
 
@@ -39,6 +41,12 @@ void philosopher(int id, sem_t* sems)
 
 int main() 
 {
+	int shm_fd = shm_open("/shared_mem", O_CREAT | O_RDWR, 0666);
+	if (shm_fd == -1) 
+	{
+		std::cerr << "shm_open failed" << std::endl;
+		exit(EXIT_FAILURE);
+	}
 
 	sem_t* sems = (sem_t*)mmap(NULL, SIZE * sizeof(sem_t), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	for (int i = 0; i < SIZE; ++i) 
@@ -71,6 +79,6 @@ int main()
 	}
 						
 	munmap(sems, SIZE * sizeof(sem_t));
-
+	shm_unlink("/shared_mem");
 	return 0;
 }
