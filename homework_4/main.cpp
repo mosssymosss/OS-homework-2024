@@ -48,7 +48,7 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 
-	sem_t* sems = (sem_t*)mmap(NULL, SIZE * sizeof(sem_t), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	sem_t* sems = (sem_t*)mmap(NULL, SIZE * sizeof(sem_t), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, shm_fd, 0);
 	for (int i = 0; i < SIZE; ++i) 
 	{
 		sem_init(&sems[i], 1, 1);
