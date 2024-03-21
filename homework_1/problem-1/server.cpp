@@ -18,11 +18,11 @@ void* handle_client(void* data)
 	while(true)
 	{
 		int rs = recv(client_socket, buffer, 3000, 0);
-	      	if (rs < 0)
-	        {
-	        	std::perror("client socket connection error");
+        if (rs < 0)
+	    {
+	       	std::perror("client socket connection error");
 			close(client_socket);
-		       	exit(EXIT_FAILURE);
+            return nullptr;
 		}
 		else if (rs > 0)
 		{
@@ -33,7 +33,6 @@ void* handle_client(void* data)
 		else
 		{
 			std::cout<<"Disconnected client \n";
-			//close(client_socket);
 			break;
 		}
 	}
@@ -91,9 +90,7 @@ int main()
 		        exit(errno);
 		}
 		std::cout << "Connected client with address: " << inet_ntoa(client_address.sin_addr) << "\n";
-		
-		
-		
+
 		pthread_t thread;
 		if(pthread_create(&thread, nullptr, handle_client, &client_socket) != 0)
 		{
@@ -101,35 +98,6 @@ int main()
 			exit(EXIT_FAILURE);
 		}
 		threads.push_back(thread);
-			
-		//	char buffer[3001];
-			// Receive message from client
-		//	while(true)
-	//		{
-	//			int rs = recv(client_socket, buffer, 3000, 0);
-	//			if (rs < 0) 
-	//			{
-	//				std::perror("client socket connection error");
-	//			        close(client_socket);
-	//			}
-	//			else if (rs > 0) 
-	//			{
-	//				std::cout << "Got message:\n";
-	//	        		buffer[rs] = '\0';
-	//	        		std::cout << buffer << "\n";
-	//			}
-	//			else
-	//			{
-	//				std::cout<<"Disconnected client with address: " << inet_ntoa(client_address.sin_addr) << "\n";
-	//				close(client_socket);
-	//				exit(EXIT_SUCCESS);
-	//			}
-	//		}
-	//	}
-	//	else
-	//	{
-	//		close(client_socket);
-	//	}
 	}
 	for(auto& x : threads)
 	{
