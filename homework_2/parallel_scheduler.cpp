@@ -48,8 +48,6 @@ void* parallel_scheduler::current_thread(void* arg)
 	
 	while(true)
 	{
-		
-
 		pthread_mutex_lock(&me->mtx);
 		while(!me->stop && me->que.empty())
 		{
