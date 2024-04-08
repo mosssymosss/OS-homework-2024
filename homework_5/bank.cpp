@@ -1,7 +1,7 @@
 #include "bank.h"
 
 Bank::Bank(int num)
-    :vault(n)
+    :vault(num)
 {
 }
 

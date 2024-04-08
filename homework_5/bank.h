@@ -3,7 +3,7 @@
 #include "bank_cell.h"
 
 #include <vector>
-
+class BankCell;
 class Bank
 {
 public:

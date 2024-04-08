@@ -4,8 +4,8 @@
 
 class BankCell
 {
-    friend Bank;
-private:
+    friend class Bank;
+public:
 
     BankCell();
     int get_current_balance() const;
