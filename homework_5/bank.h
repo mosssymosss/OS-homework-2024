@@ -1,33 +1,30 @@
 #ifndef BANK
 #define BANK
-#include "bank_cell.h"
 
+#include "bank_cell.h"
 #include <vector>
 class BankCell;
-class Bank
-{
+
+class Bank{
 public:
-    Bank(int num);
+    Bank(int* bankArray);
 
-    int get_cell_balance(int id) const;
-    int get_cell_min_balance(int id) const;
-    int get_cell_max_balance(int id) const;
-
-    bool freeze_cell(int id);
-    bool unfreeze_cell(int id);
-
-    bool transfer(int from, int to, int amount);
-
+    int get_cell_curr_balance(int num) const;
+    int get_cell_min_balance(int num) const;
+    int get_cell_max_balance(int num) const;
+    bool freeze_cell(int num);
+    bool unfreeze_cell(int num);
+    bool transfer(int a, int b, int amount);
     bool add_to_all(int amount);
     bool sub_from_all(int amount);
+    bool set_cell_min_amount(int num, int amount);
+    bool set_cell_max_amount(int num, int amount);
 
-    bool set_cell_min_balance(int id, int amount);
-    bool set_cell_max_balance(int id, int amount);
+    unsigned int bankSize;
+    BankCell cells[];
 
-
-
-private:
-    std::vector<BankCell> vault;
+    BankCell& operator[](unsigned int ind);
 };
+
 
 #endif

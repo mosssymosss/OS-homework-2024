@@ -1,99 +1,80 @@
 #include "bank.h"
+#include <iostream>
 
-Bank::Bank(int num)
-    :vault(num)
-{
-}
-
-int Bank::get_cell_balance(int id) const
-{
-    if(id < 0 || id >= vault.size())
-        return -1;
-    return vault[id].get_current_balance();
-}
-int Bank::get_cell_min_balance(int id) const
-{
-    if(id < 0 || id >= vault.size())
-        return -1;
-    return vault[id].get_minimum_balance();
-}
-int Bank::get_cell_max_balance(int id) const
-{
-    if(id < 0 || id >= vault.size())
-        return -1;
-    return vault[id].get_maximum_balance();
-}
-
-bool Bank::freeze_cell(int id)
-{
-    if(id < 0 || id >= vault.size())
-        return false;
-    vault[id].freeze();
-    return true;
-}
-bool Bank::unfreeze_cell(int id)
-{
-    if(id < 0 || id >= vault.size())
-        return false;
-    vault[id].unfreeze();
-    return true;
-}
-
-bool Bank::transfer(int from, int to, int amount)
-{
-    if(from < 0 || from >= vault.size() || to < 0 || to >= vault.size())
-        return false;
-    if(amount < 0)
-        return false;
-    if(vault[from].frozen() || vault[to].frozen())
-        return false;
-
-    if(vault[from].send(amount))
+int Bank::get_cell_curr_balance(int num) const {
+    if(num < 0 || num >= bankSize)
     {
-        if(vault[to].receive(amount))
-        {
+        return -1;
+    }
+
+    return cells[num].get_curr_balance();
+}
+int Bank::get_cell_min_balance(int num) const {
+    if(num < 0 || num >= bankSize) {
+        return -1;
+    }
+
+    return cells[num].get_min_balance();
+}
+
+int Bank::get_cell_max_balance(int num) const {
+    if(num < 0 || num >= bankSize) {
+        return -1;
+    }
+
+    return cells[num].get_max_balance();
+}
+
+bool Bank::freeze_cell(int num) {
+    if(num < 0 || num >= bankSize) {
+        return false;
+    }
+
+    cells[num].freeze();
+    return true;
+}
+
+bool Bank::unfreeze_cell(int num) {
+    if(num < 0 || num >= bankSize) {
+        return false;
+    }
+
+    cells[num].unfreeze();
+    return true;
+}
+
+bool Bank::transfer(int a, int b, int amount) {
+    if(a < 0 || a >= bankSize || b < 0 || b >= bankSize || amount < 0) {
+        return false;
+    }
+
+    if(cells[a].is_frozen() || cells[b].is_frozen()) {
+        return false;
+    }
+
+    if(cells[a].send_amount(amount)) {
+        if(cells[b].receive_amount(amount)) {
             return true;
         }
-        vault[from].receive(amount);
+
+        cells[a].receive_amount(amount);
     }
+
     return false;
-
 }
 
-bool Bank::add_to_all(int amount)
-{
-    if(amount < 0)
+bool Bank::add_to_all(int amount) {
+    if(amount < 0) {
         return false;
-
-    int i;
-    for(i = 0; i < vault.size(); ++i)
-    {
-        if(!vault[i].receive(amount) || vault[i].frozen())
-        {
-            for(int j = 0; j < i; ++j)
-            {
-                vault[i].receive(amount);
-            }
-            return false;
-        }
     }
 
-    return true;
-}
-bool Bank::sub_from_all(int amount)
-{
-    if(amount < 0)
-        return false;
-
-    int i;
-    for(i = 0; i < vault.size(); ++i)
-    {
-        if(!vault[i].send(amount) || vault[i].frozen())
-        {
-            for(int j = 0; j < i; ++j)
-            {
-                vault[i].send(amount);
+    int index = 0;
+    for( ; index < bankSize; ++index) {
+        if(!cells[index].receive_amount(amount) || cells[index].is_frozen()) {
+            for(int i = 0; i < index; ++i) {
+                cells[i].send_amount(amount);
             }
+
             return false;
         }
     }
@@ -101,29 +82,52 @@ bool Bank::sub_from_all(int amount)
     return true;
 }
 
-bool Bank::set_cell_min_balance(int id, int amount)
-{
-    if(id < 0 || id >= vault.size())
+bool Bank::sub_from_all(int amount) {
+    if(amount < 0) {
         return false;
-    if(vault[id].frozen())
-        return false;
+    }
 
-    if(amount > vault[id].get_current_balance() || amount >= vault[id].get_maximum_balance())
-        return false;
+    int index = 0;
+    for( ; index < bankSize; ++index) {
+        if(!cells[index].send_amount(amount) || cells[index].is_frozen()) {
+            for(int i = 0; i < index; ++i) {
+                cells[i].receive_amount(amount);
+            }
 
-    vault[id].set_minimum_balance(amount);
+            return false;
+        }
+    }
+
     return true;
 }
-bool Bank::set_cell_max_balance(int id, int amount)
-{
-    if(id < 0 || id >= vault.size())
-        return false;
-    if(vault[id].frozen())
-        return false;
 
-    if(amount < vault[id].get_current_balance() || amount <= vault[id].get_minimum_balance())
+bool Bank::set_cell_min_amount(int num, int amount) {
+    if(num < 0 || num >= bankSize) {
         return false;
+    }
 
-    vault[id].set_maximum_balance(amount);
+    if(amount > cells[num].get_curr_balance() || amount >= cells[num].get_max_balance() || cells[num].is_frozen()) {
+        return false;
+    }
+
+    cells[num].set_min_amount(amount);
     return true;
+}
+
+bool Bank::set_cell_max_amount(int num, int amount) {
+    if(num < 0 || num >= bankSize) {
+        return false;
+    }
+
+    if(amount < cells[num].get_curr_balance() || amount <= cells[num].get_min_balance() || cells[num].is_frozen()) {
+        return false;
+    }
+
+    cells[num].set_max_amount(amount);
+    return true;
+}
+
+BankCell& Bank::operator[](unsigned int ind)
+{
+    return cells[ind];
 }

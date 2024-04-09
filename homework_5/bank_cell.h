@@ -1,33 +1,26 @@
-#ifndef BANK_CELL
-#define BANK_CELL
-#include "bank.h"
+#ifndef BANKCELL
+#define BANKCELL
 
-class BankCell
-{
-    friend class Bank;
+class BankCell{
 public:
-
     BankCell();
-    int get_current_balance() const;
-    int get_minimum_balance() const;
-    int get_maximum_balance() const;
-
+    int get_min_balance() const;
+    int get_max_balance() const;
+    int get_curr_balance() const;
     void freeze();
     void unfreeze();
+    bool is_frozen();
+    bool send_amount(int amount);
+    bool receive_amount(int amount);
+    void set_min_amount(int amount);
+    void set_max_amount(int amount);
 
-    bool send(int amount);
-    bool receive(int amount);
-
-    void set_minimum_balance(int amount);
-    void set_maximum_balance(int amount);
-
-    bool frozen() const;
-
-private:
+public:
     int current_balance;
-    int minimum_balance;
-    int maximum_balance;
-    bool is_frozen;
+    int min_amount = 0;
+    int max_amount = 1000;
+    bool frozen;
+
 };
 
 #endif

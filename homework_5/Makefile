@@ -3,6 +3,17 @@ run: init client destroy
 	./client
 	./destroy
 
+run_init: init
+	./init
+
+run_client: client
+	./client
+
+run_destroy: destroy
+	./destroy
+
+release: init client destroy
+
 init: bank.h init.cpp bank.o bank_cell.o
 	g++ init.cpp bank.o bank_cell.o -o init -lrt
 
@@ -19,4 +30,4 @@ bank.o: bank_cell.h bank.h bank.cpp
 	g++ bank.cpp -c
 
 clean:
-	rm -f init client destroy *.o
+	rm -f init client destroy *.o init_d client_d destroy_d
